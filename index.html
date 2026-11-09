@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Woman Health Clinic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: #f7f9fa; color: #333; padding-bottom: 50px; text-align: right; }
+        header { background-color: #204051; color: #fff; padding: 20px; text-align: center; }
+        .container { max-width: 650px; margin: 20px auto; padding: 15px; }
+        .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #444; }
+        .form-control { width: 100%; padding: 11px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; background: #fafafa; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+        .service-btn { background: #fff; border: 1px solid #d5dedf; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; }
+        .service-btn.selected { background-color: #3b6978; color: #fff; border-color: #3b6978; }
+        .submit-btn { background-color: #b87d6b; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 25px; font-size: 16px; font-weight: 700; cursor: pointer; }
+        
+        .day-section { background: #eef2f3; padding: 12px; border-radius: 12px; margin-bottom: 15px; border-right: 5px solid #204051; }
+        .day-title { font-size: 14px; font-weight: bold; color: #204051; margin-bottom: 8px; border-bottom: 1px solid #d5dedf; padding-bottom: 4px; }
+        .booking-item { background: #fff; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e0e0e0; font-size: 12px; }
+
+        .patient-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 9999999; justify-content: center; align-items: center; padding: 15px;
+        }
+        .patient-modal-content { background: #fff; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; padding: 20px; border-radius: 15px; text-align: right; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>The Woman Health Clinic</h1>
+        <p>الفيوم - المسلة - برج الأطباء</p>
+    </header>
+
+    <div class="container">
+        <!-- سيتم إضافة نماذج الحجز ولوحة التحكم هنا -->
+    </div>
+
+</body>
+</html>
+
+        <!-- حجز المواعيد -->
+        <div class="card">
+            <h2>📝 حجز موعد العيادة</h2>
+            
+            <div class="form-group" style="margin-top:15px;">
+                <label>اختر الطبيبة:</label>
+                <select id="doc" class="form-control">
+                    <option value="د. شيماء عبدالحليم">د. شيماء عبدالحليم (الأحد، الثلاثاء، الخميس)</option>
+                    <option value="د. دعاء عبدالحليم">د. دعاء عبدالحليم (الإثنين، الأربعاء)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>التاريخ:</label>
+                <input type="date" id="bDate" class="form-control" onchange="checkClinicTime()">
+            </div>
+
+            <div class="form-group">
+                <label>ساعة الحجز المطلوبة:</label>
+                <select id="bTime" class="form-control">
+                    <option value="02:00 م">02:00 م</option>
+                    <option value="02:30 م">02:30 م</option>
+                    <option value="03:00 م">03:00 م</option>
+                    <option value="03:30 م">03:30 م</option>
+                    <option value="04:00 م">04:00 م</option>
+                    <option value="04:30 م">04:30 م</option>
+                    <option value="05:00 م">05:00 م</option>
+                    <option value="05:30 م">05:30 م</option>
+                    <option value="06:00 م">06:00 م</option>
+                    <option value="06:30 م">06:30 م</option>
+                    <option value="07:00 م">07:00 م</option>
+                    <option value="07:30 م">07:30 م</option>
+                    <option value="08:00 م">08:00 م</option>
+                </select>
+                <small id="timeNote" style="color: #c0392b; font-weight: bold; display: block; margin-top: 5px;"></small>
+            </div>
+
+            <div class="form-group">
+                <label>اسم المريضة:</label>
+                <input type="text" id="pName" class="form-control" placeholder="الاسم الثلاثي">
+            </div>
+
+            <div class="form-group">
+                <label>رقم الهاتف (إلزامي):</label>
+                <input type="text" id="pPhone" class="form-control" placeholder="رقم الموبايل">
+            </div>
+
+            <div class="form-group">
+                <label>الخدمات المطلوبة (يمكن اختيار أكثر من خدمة):</label>
+                <div class="services-grid">
+                    <button type="button" class="service-btn" onclick="toggleService(this, 'كشف نسا')">كشف نسا</button>
+                    <button type="button" class="service-btn" onclick="toggleService(this, 'استشارة')">استشارة</button>
+                    <button type="button" class="service-btn" onclick="toggleService(this, 'لولب ذهبي')">لولب ذهبي</button>
+                    <button type="button" class="service-btn" onclick="toggleService(this, 'لولب فضي')">لولب فضي</button>
+                    <button type="button" class="service-btn" onclick="toggleService(this, 'لولب هرموني')">لولب هرموني</button>
+                    <button type="button" class="service-btn" onclick="toggleService(this, 'إزالة لوب')">إزالة لوب</button>
+                    <button type="button" class="service-btn" onclick="toggleService(this, 'كبسولة')">كبسولة</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>نوع الزيارة:</label>
+                <select id="vType" class="form-control">
+                    <option value="كشف جديد (أول زيارة)">كشف جديد (أول زيارة)</option>
+                    <option value="كشف جديد (لدي ملف)">كشف جديد (لدي ملف)</option>
+                    <option value="إعادة كشف">إعادة كشف</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>نوع الملف بالعيادة:</label>
+                <select id="fType" class="form-control">
+                    <option value="ملف نسا">ملف نسا</option>
+                    <option value="ملف حمل">ملف حمل</option>
+                </select>
+            </div>
+
+            <button class="submit-btn" id="subBtn" onclick="bookNow()">تأكيد الحجز 🎟️</button>
+
+            <div id="ticket" style="display:none; background:#eaf2f4; padding:15px; border-radius:10px; margin-top:15px; text-align:center;">
+                <h3>تم تسجيل الحجز بنجاح!</h3>
+                <p id="tDetails" style="font-size:12px; margin:5px 0;"></p>
+                <br>
+                <a id="waLink" href="#" target="_blank" style="display:inline-block; background:#25D366; color:#fff; padding:10px 20px; border-radius:20px; text-decoration:none; font-size:13px; font-weight:bold;">💬 التواصل مع العيادة عبر الواتساب</a>
+            </div>
+        </div>
+
+        <!-- لوحة التحكم -->
+        <div class="card" style="text-align:center;">
+            <h3>🔒 لوحة التحكم</h3>
+            <input type="password" id="pass" class="form-control" placeholder="أدخل كلمة السر" style="margin:10px 0; text-align:center;">
+            <button class="submit-btn" onclick="loginAdmin()" style="background:#204051; padding:10px;">دخول اللوحة 🔑</button>
+        </div>
+
+        <div class="card" id="dash" style="display:none;">
+            <h3>📋 قائمة الحجوزات مقسمة حسب الأيام</h3>
+            <div id="bookingList">جاري التحميل من السيرفر...</div>
+        </div>
+    </div>
+
+    <!-- نافذة الملف الطبي السري -->
+    <div id="modal" class="patient-modal">
+        <div class="patient-modal-content">
+            <h3 id="mTitle" style="color:#204051; margin-bottom:5px;">الملف الطبي</h3>
+            <div id="mStats" style="font-size:12px; color:#b87d6b; margin-bottom:10px; font-weight:bold;"></div>
+            <div style="background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:12px; border:1px solid #eee;">
+                <h4 style="font-size:12px; margin-bottom:5px; color:#3b6978;">تسجيل زيارة أو تشخيص جديد:</h4>
+                <input type="text" id="mDiag" class="form-control" placeholder="التشخيص الطبي / السونار..." style="margin-bottom:5px; font-size:12px; padding:8px;">
+                <textarea id="mNotes" class="form-control" placeholder="العلاج والملاحظات..." style="margin-bottom:5px; height:45px; font-size:12px; padding:8px;"></textarea>
+                <button class="submit-btn" onclick="saveRecord()" style="padding:6px; font-size:12px; background:#204051;">💾 حفظ الزيارة للسجل</button>
+            </div>
+            <div id="mHistory" style="margin-top:10px; font-size:12px;"></div>
+            <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; background:#888; color:#fff; border:none; padding:8px; border-radius:5px; margin-top:15px; cursor:pointer;">إغلاق الملف</button>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzqiLhhz9F5HnrOZsVEm-JbR12_4JJjtIImxmSwJVGxZY2MC4vsG8CGVSG_ic5Pbkrn/exec'
+        
+        var todayStr = new Date().toISOString().split('T')[0];
+        document.getElementById('bDate').value = todayStr;
+        checkClinicTime();
+
+        function checkClinicTime() {
+            var selectedDate = document.getElementById('bDate').value;
+            var noteBox = document.getElementById('timeNote');
+            var subBtn = document.getElementById('subBtn');
+            var now = new Date();
+            var currentHour = now.getHours();
+
+            if (selectedDate === todayStr && currentHour >= 20) {
+                noteBox.innerHTML = "⚠️ عذراً، تم إغلاق حجوزات اليوم لتجاوز الساعة 8 مساءً.";
+                subBtn.disabled = true;
+                subBtn.style.background = "#95a5a6";
+            } else {
+                noteBox.innerHTML = "";
+                subBtn.disabled = false;
+                subBtn.style.background = "#b87d6b";
+            }
+        }
+
+        var selectedServices = [];
+        function toggleService(btn, name) {
+            btn.classList.toggle('selected');
+            if(btn.classList.contains('selected')) {
+                if(!selectedServices.includes(name)) selectedServices.push(name);
+            } else {
+                selectedServices = selectedServices.filter(s => s !== name);
+            }
+        }
+
+        function bookNow() {
+            var doc = document.getElementById('doc').value;
+            var bDate = document.getElementById('bDate').value;
+            var bTime = document.getElementById('bTime').value;
+            var name = document.getElementById('pName').value.trim();
+            var phone = document.getElementById('pPhone').value.trim();
+            var vType = document.getElementById('vType').value;
+            var fType = document.getElementById('fType').value;
+
+            if(!name || !phone || !bDate) { 
+                alert('برجاء إدخال التاريخ، الاسم ورقم الهاتف بشكل صحيح!'); 
+                return; 
+            }
+
+            if(selectedServices.length === 0) {
+                alert('برجاء اختيار خدمة واحدة على الأقل!');
+                return;
+            }
+
+            var btn = document.getElementById('subBtn');
+            btn.innerText = 'جاري تسجيل الحجز... ⏳';
+            btn.disabled = true;
+
+            var fullSrv = selectedServices.join(' + ');
+            var fullType = vType + " (" + fType + ")";
+            var id = Date.now().toString();
+
+            var formData = new FormData();
+            formData.append('action', 'addBooking');
+            formData.append('id', id);
+            formData.append('doc', doc);
+            formData.append('name', name);
+            formData.append('phone', phone);
+            formData.append('srv', fullSrv);
+            formData.append('type', fullType);
+            formData.append('date', bDate);
+            formData.append('time', bTime);
+            formData.append('status', 'معلق ⏳');
+
+            fetch(SHEET_URL, { method: 'POST', body: formData })
+            .then(() => {
+                btn.innerText = 'تأكيد الحجز 🎟️';
+                btn.disabled = false;
+                document.getElementById('ticket').style.display = 'block';
+                document.getElementById('tDetails').innerHTML = "الطبيبة: " + doc + "<br>التاريخ: " + bDate + " (" + bTime + ")<br>الاسم: " + name + "<br>الخدمات: " + fullSrv;
+                
+                var msg = "مرحباً عيادة The Woman Health Clinic، أرغب في تأكيد حجزي باسم: " + name + " بتاريخ: " + bDate + " الساعة: " + bTime;
+                document.getElementById('waLink').href = "https://wa.me/201220035941?text=" + encodeURIComponent(msg);
+
+                document.getElementById('pName').value = '';
+                document.getElementById('pPhone').value = '';
+            })
+            .catch(() => {
+                btn.innerText = 'تأكيد الحجز 🎟️';
+                btn.disabled = false;
+                document.getElementById('ticket').style.display = 'block';
+                document.getElementById('tDetails').innerHTML = "الطبيبة: " + doc + "<br>التاريخ: " + bDate + " (" + bTime + ")<br>الاسم: " + name;
+            });
+        }
+
+        function loginAdmin() {
+            var passVal = document.getElementById('pass').value;
+            if(passVal === 'Yahia889') {
+                document.getElementById('dash').style.display = 'block';
+                loadBookings();
+            } else {
+                alert('كلمة السر غير صحيحة! ❌');
+            }
+        }
+
+        function loadBookings() {
+            var list = document.getElementById('bookingList');
+            list.innerHTML = 'جاري تحميل الحجوزات من السيرفر... ⏳';
+
+            fetch(SHEET_URL)
+            .then(res => res.json())
+            .then(data => {
+                if(!data || data.length === 0) {
+                    list.innerHTML = '<p style="text-align:center; color:#778;">لا توجد حجوزات مسجلة حالياً</p>';
+                    return;
+                }
+
+                var grouped = {};
+                for(var i = 0; i < data.length; i++) {
+                    var b = data[i];
+                    var rawDate = String(b.date || 'غير محدد');
+                    var cleanDate = rawDate.includes('T') ? rawDate.split('T')[0] : rawDate.substring(0, 10);
+                    if(!grouped[cleanDate]) grouped[cleanDate] = [];
+                    grouped[cleanDate].push(b);
+                }
+
+                var html = '';
+                var daysOfWeek = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+                for(var dKey in grouped) {
+                    var dayName = '';
+                    if(dKey.includes('-')) {
+                        var p = dKey.split('-');
+                        var dateObj = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+                        if(!isNaN(dateObj.getTime())) {
+                            dayName = daysOfWeek[dateObj.getDay()] || '';
+                        }
+                    }
+
+                    html += '<div class="day-section">';
+                    html += '<div class="day-title">📅 ' + (dayName ? dayName + ' - ' : '') + dKey + '</div>';
+
+                    var items = grouped[dKey];
+                    for(var j = 0; j < items.length; j++) {
+                        var b = items[j];
+                        var statusColor = String(b.status).includes('مقبول') ? '#27ae60' : (String(b.status).includes('مرفوض') ? '#c0392b' : '#e67e22');
+
+                        html += '<div class="booking-item">' +
+                                '⏰ <b>الساعة: ' + b.time + '</b> | 👤 <b>' + b.name + '</b> (📞 ' + b.phone + ')<br>' +
+                                '👩‍⚕️ الطبيبة: ' + b.doc + ' | 🩺 الخدمة: ' + b.srv + '<br>' +
+                                '📌 النوع: ' + b.type + '<br>' +
+                                'الحالة: <b style="color:' + statusColor + '">' + b.status + '</b><br>' +
+                                '<div style="margin-top:6px;">' +
+                                '<button onclick="changeStatus(\'' + b.id + '\', \'مقبول ✔️\')" style="background:#27ae60; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; margin-left:3px;">قبول ✔️</button> ' +
+                                '<button onclick="changeStatus(\'' + b.id + '\', \'مرفوض ❌\')" style="background:#c0392b; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; margin-left:3px;">رفض ❌</button> ' +
+                                '<button onclick="sendWa(\'' + b.phone + '\', \'' + b.name + '\', \'' + b.status + '\', \'' + b.time + '\')" style="background:#25D366; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; margin-left:3px;">💬 واتساب</button> ' +
+                                '<button onclick="openModal(\'' + b.name + '\', \'' + b.phone + '\')" style="background:#3b6978; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">📂 الملف</button>' +
+                                '</div></div>';
+                    }
+                    html += '</div>';
+                }
+                list.innerHTML = html;
+            })
+            .catch(() => {
+                list.innerHTML = '<p style="text-align:center; color:red;">تعذر تحميل الحجوزات.</p>';
+            });
+        }
+
+        function changeStatus(id, newStatus) {
+            var formData = new FormData();
+            formData.append('action', 'updateStatus');
+            formData.append('id', id);
+            formData.append('status', newStatus);
+
+            fetch(SHEET_URL, { method: 'POST', body: formData })
+            .then(() => setTimeout(loadBookings, 600))
+            .catch(() => alert('حدث خطأ أثناء التحديث.'));
+        }
+
+        function sendWa(phone, name, status, time) {
+            if(!phone) { alert('رقم الهاتف غير متوفر'); return; }
+            var cleanPhone = phone.toString().replace(/\D/g, '');
+            if(!cleanPhone.startsWith('20') && cleanPhone.length === 10) cleanPhone = '20' + cleanPhone;
+            var msg = 'مرحباً أ. ' + name + '، نود إعلامك بأن حالة حجزك (ميعاد الساعة ' + time + ') أصبحت: *' + status + '* 🩺 - عيادة The Woman Health Clinic';
+            window.open('https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent(msg), '_blank');
+        }
+
+        var activePhone = '';
+        function openModal(name, phone) {
+            activePhone = phone;
+            document.getElementById('mTitle').innerText = 'الملف الطبي للمريضة: ' + name;
+            document.getElementById('mStats').innerText = 'رقم الهاتف: ' + (phone || 'غير متوفر');
+            document.getElementById('modal').style.display = 'flex';
+            loadPatientHistory(phone);
+        }
+
+        function saveRecord() {
+            var diag = document.getElementById('mDiag').value.trim();
+            var notes = document.getElementById('mNotes').value.trim();
+            if(!diag) { alert('برجاء كتابة التشخيص على الأقل!'); return; }
+
+            var formData = new FormData();
+            formData.append('action', 'saveRecord');
+            formData.append('phone', activePhone);
+            formData.append('date', new Date().toISOString().split('T')[0]);
+            formData.append('diag', diag);
+            formData.append('notes', notes);
+
+            fetch(SHEET_URL, { method: 'POST', body: formData })
+            .then(() => {
+                alert('تم حفظ الزيارة بنجاح!');
+                document.getElementById('mDiag').value = '';
+                document.getElementById('mNotes').value = '';
+                loadPatientHistory(activePhone);
+            })
+            .catch(() => alert('حدث خطأ أثناء الحفظ.'));
+        }
+
+        function loadPatientHistory(phone) {
+            var historyDiv = document.getElementById('mHistory');
+            historyDiv.innerHTML = '<p style="color:#666;">جاري تحميل سجل الزيارات...</p>';
+
+            fetch(SHEET_URL + '?action=getRecords&phone=' + phone)
+            .then(res => res.json())
+            .then(data => {
+                if(!data || data.length === 0) {
+                    historyDiv.innerHTML = '<p style="color:#778;">لا توجد زيارات مسجلة سابقة لهذا الملف.</p>';
+                    return;
+                }
+                var html = '<table style="width:100%; border-collapse:collapse; margin-top:5px; font-size:11px;">' +
+                           '<tr style="background:#204051; color:#fff;"><th style="padding:5px; border:1px solid #ddd;">التاريخ</th><th style="padding:5px; border:1px solid #ddd;">التشخيص والسونار</th><th style="padding:5px; border:1px solid #ddd;">العلاج والملاحظات</th></tr>';
+                for(var i = 0; i < data.length; i++) {
+                    html += '<tr><td style="padding:5px; border:1px solid #ddd; text-align:center;">' + data[i].date + '</td>' +
+                            '<td style="padding:5px; border:1px solid #ddd;">' + data[i].diag + '</td>' +
+                            '<td style="padding:5px; border:1px solid #ddd;">' + data[i].notes + '</td></tr>';
+                }
+                html += '</table>';
+                historyDiv.innerHTML = html;
+            })
+            .catch(() => {
+                historyDiv.innerHTML = '<p style="color:red;">تعذر تحميل سجل الزيارات.</p>';
+            });
+        }
+    </script>
+</body>
+</html>
